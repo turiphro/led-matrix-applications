@@ -2,7 +2,7 @@ import asyncio
 from protocols.wled_udp import UDPRealtimeProtocol
 from display import Display
 from display_updater import DisplayUpdater
-from apps.app import App
+from apps.moving_pixel import MovingPixelApp
 
 
 WIDTH = 18
@@ -19,7 +19,7 @@ async def main():
     protocol = UDPRealtimeProtocol(IP, PORT_UDP)
 
     display_updater = DisplayUpdater(display, protocol, FPS)
-    app = App(display)
+    app = MovingPixelApp(display)
 
     display_task = asyncio.create_task(display_updater.loop())
     loop = asyncio.get_running_loop()
