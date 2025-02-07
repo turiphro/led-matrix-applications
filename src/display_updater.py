@@ -1,16 +1,16 @@
 import asyncio
 import time
 
-from display import Display
+from frame_buffer import FrameBuffer
 from protocols.protocol import Protocol
 
 
 class DisplayUpdater:
-    def __init__(self, display: Display, protocol: Protocol, fps: int):
+    def __init__(self, frame: FrameBuffer, protocol: Protocol, fps: int):
         self.running = True
 
         # NOTE: DisplayUpdater should only READ from display, never write
-        self.display = display
+        self.frame = frame
         self.protocol = protocol
         self.fps = fps
 
@@ -19,7 +19,7 @@ class DisplayUpdater:
             #print("Updating display...")
             start = time.perf_counter()
 
-            pixels = self.display.pixels
+            pixels = self.frame.get_all_pixels()
             self.protocol.send_full_frame(pixels)
 
             waiting = max(0, 1.0 / self.fps - (time.perf_counter() - start))

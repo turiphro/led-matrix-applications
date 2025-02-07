@@ -1,6 +1,6 @@
 import asyncio
 from protocols.wled_udp import UDPRealtimeProtocol
-from display import Display
+from frame_buffer import FrameBuffer
 from display_updater import DisplayUpdater
 from apps.moving_pixel import MovingPixelApp
 
@@ -15,11 +15,22 @@ PORT_RX = 1
 
 
 async def main():
-    display = Display(width=WIDTH, height=HEIGHT)
-    protocol = UDPRealtimeProtocol(IP, PORT_UDP)
+    """
+    Main entry point for the application.
+    """
 
-    display_updater = DisplayUpdater(display, protocol, FPS)
-    app = MovingPixelApp(display)
+    """
+    ----thread-           ---------------------------thread-
+    | app ----|--> frame -|-> display_updater -> protocol -|-> [screen]
+    -----------           ----------------------------------
+    """
+
+    frame = FrameBuffer(width=WIDTH, height=HEIGHT)
+
+    protocol = UDPRealtimeProtocol(IP, PORT_UDP)
+    display_updater = DisplayUpdater(frame, protocol, FPS)
+
+    app = MovingPixelApp(frame)
 
     display_task = asyncio.create_task(display_updater.loop())
     loop = asyncio.get_running_loop()
