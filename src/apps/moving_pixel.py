@@ -6,13 +6,15 @@ from inputs.input import Event
 
 
 class MovingPixelApp:
-    def __init__(self, frame: FrameBuffer):
-        self.frame = frame
+    def __init__(self, frame: FrameBuffer, fps: int):
         self.running = True
+
+        self.frame = frame
+        self.fps = fps
         self.position = [0, 0]
 
     def handle_input(self, event: Event):
-        raise NotImplementedError
+        print(f"{self.__class__.__name__} received event: {event}")
 
     def run(self):
         """Simulates a moving pixel until it decides to exit."""
