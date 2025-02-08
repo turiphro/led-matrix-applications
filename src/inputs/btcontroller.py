@@ -31,19 +31,13 @@ def map_joystick(axis):
 class BTController(Input):
     def __init__(self, event_handler):
         self.running = True
-
         self.event_handler = event_handler
+        self.controllers = {}
+        self.tasks = {}
 
     def find_controllers(self):
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-        controllers = [device for device in devices if "Pro Controller" in device.name]
-
-        print("Available controllers:")
-        for controller in controllers:
-            # .name: "Pro Controller" (all of them)
-            # .uniq: mac address (e.g., "E4:17:D8:2C:2D:EA")
-            print(f"{controller.path}: {controller.name}, {controller.uniq}, {controller.info}")
-
+        controllers = {device.uniq: device for device in devices if "Pro Controller" in device.name}
         return controllers
 
     async def handle_events(self, controller: evdev.InputDevice):
@@ -72,9 +66,26 @@ class BTController(Input):
                         self.event_handler(Event(controller.uniq, button, state))
 
     async def loop(self):
-        self.controllers = self.find_controllers()
-        self.tasks = [self.handle_events(controller) for controller in self.controllers]
-        await asyncio.gather(*self.tasks)
+        while self.running:
+            controllers = self.find_controllers()
+
+            # add new controllers
+            for controller_id, controller in controllers.items():
+                if controller_id not in self.controllers:
+                    print(f"New controller found: {controller.uniq}")
+                    self.controllers[controller_id] = controller
+                    task = asyncio.create_task(self.handle_events(controller))
+                    self.tasks[controller_id] = task
+
+            # remove disconnected controllers
+            disconnected_ids = set(self.controllers.keys()) - set(controllers.keys())
+            for controller_id in disconnected_ids:
+                print(f"Controller disconnected: {controller_id}")
+                del self.controllers[controller_id]
+                self.tasks[controller_id].cancel()
+                del self.tasks[controller_id]
+
+            await asyncio.sleep(5)
 
     def stop(self):
         self.running = False
