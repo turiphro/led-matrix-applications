@@ -5,7 +5,9 @@ import enum
 DEVICE_ID_COLOURS = {
     # known device IDs with their respective colours
     "E4:17:D8:2C:2D:EA": (44, 111, 187),  # 8bitdo micro - matt blue
-    "E4:17:D8:35:8A:3A": (57, 173, 72),  # 8bitdo micro - matt green
+    "E4:17:D8:35:8A:3A": (57, 173, 72),   # 8bitdo micro - matt green
+    "E4:17:D8:E1:0A:72": (244, 188, 28),  # 8bitdo zero 2 - orange-yellow
+    "E4:17:D8:11:E7:6A": (255, 16, 240),  # 8bitdo zero 2 - neon-pink
 }
 
 
